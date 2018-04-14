@@ -12,8 +12,10 @@ int getLines(const char* fname)
     int ch=0;
     int lines=0;
 
-    if (fp == NULL);
-        return 0;
+    if (fp == NULL){
+        perror(fname);
+        exit(EXIT_FAILURE);
+    }
 
     lines++;
     while(!feof(fp))
@@ -36,7 +38,8 @@ void parse(const char* fname) {
     }
 
     int lines = getLines(fname);
-    particlesData = (Data*)malloc(sizeof(Data) * lines);
+    printf("Number of lines: %d\n", lines);
+    particlesData = (Data*)calloc(lines, sizeof(Data));
 
     char * line = NULL;
     size_t len = 0;
@@ -44,18 +47,13 @@ void parse(const char* fname) {
     int i = 0;
 
     while ((read = getline(&line, &len, f)) != -1) {
-        if(i==4)
-            continue;
-        printf("Retrieved line of length %zu\n", read);
-        printf("%s", line);
         double px, py, vx, vy, m;
-        sscanf(line, "%lf,%lf;%lf,%lf;%lf\n", &px, &py, &vx, &vy, &m);
+        sscanf(line, "%lf,%lf;%lf,%lf;%lf", &px, &py, &vx, &vy, &m);
         particlesData[i].position.x = px;
         particlesData[i].position.y = py;
         particlesData[i].velocity.x = vx;
         particlesData[i].velocity.y = vy;
         particlesData[i].mass = m;
-        printf("%lf,%lf;%lf,%lf;%lf\n", particlesData[i].position.x, particlesData[i].position.y, particlesData[i].velocity.x, particlesData[i].velocity.y, particlesData[i].mass);
         i++;
     }
 

@@ -27,6 +27,6 @@ int main(int argc, char**argv) {
 
     parse(fname);
     free (fname);
-    //free(particlesData);
+    free(particlesData);
     return 0;
 }
