@@ -4,7 +4,11 @@
 #include "data.h"
 
 extern Data* particlesData;
+extern size_t numOfParticles;
 
+#ifdef _WIN32
+#define getline(a,b,c) -1 //only for windows where program won't be launched
+#endif
 
 int getLines(const char* fname)
 {                                
@@ -38,7 +42,8 @@ void parse(const char* fname) {
     }
 
     int lines = getLines(fname);
-    printf("Number of lines: %d\n", lines);
+    numOfParticles = lines;
+    printf("Number of particles: %d\n", lines);
     particlesData = (Data*)calloc(lines, sizeof(Data));
 
     char * line = NULL;

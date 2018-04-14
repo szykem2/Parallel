@@ -1,2 +1,10 @@
 *.o
 nbody
+.vscode
+*.gz
+*.aux
+*.log
+*.clog2
+*.slog2
+*.pdf
+nodes
