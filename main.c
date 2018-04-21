@@ -9,7 +9,8 @@
 #include "mpi.h"
 #include "mpe.h"
 #include "mpe_graphics.h"
-
+#include <omp.h>
+`
 #define MASTER 0
 #define dt 0.001;
 
@@ -72,12 +73,12 @@ int main(int argc, char**argv) {
     double elapsed_time = (end - start)/(double)CLOCKS_PER_SEC;
     printf("Elapsed time iterative: %.2f.\n", elapsed_time);
 
-    start = clock();
     Tree* tree = NULL;
     createTree(&tree);
     buildTree(tree, particlesData, numOfParticles);
     computeCOM(tree);
-    
+    start = clock();    
+    #pragma omp parallel
     for(int i = 0; i < numOfParticles; i++) {
         
         Vector2D forces = calculateForce(tree, &particlesData[i]);
