@@ -43,7 +43,7 @@ void parse(const char* fname) {
 
     int lines = getLines(fname);
     numOfParticles = lines;
-    printf("Number of particles: %d\n", lines);
+    printf("Number of particles: %zu\n", numOfParticles);
     particlesData = (Data*)calloc(lines, sizeof(Data));
 
     char * line = NULL;
@@ -61,7 +61,5 @@ void parse(const char* fname) {
         particlesData[i].mass = m;
         i++;
     }
-
-    printf("test");
     fclose(f);
 }

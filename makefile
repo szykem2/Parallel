@@ -25,4 +25,4 @@ clean:
 run:
 	#sourcempi
 	#/opt/nfs/config/station_name_list.sh 101 116 > nodes
-	mpiexec -f nodes ./$(PROJ) -df dataFile
+	mpiexec -f nodes -n 1 ./$(PROJ) -df dataFile
