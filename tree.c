@@ -126,7 +126,6 @@ Com computeNodeCOM(Node* node) {
         com.position.x = node->obj->position.x;
         com.position.y = node->obj->position.y;
         com.mass = node->obj->mass;
-        printf("pos x: %lf y: %lf mass: %lf\n", com.position.x, com.position.y, com.mass);
     }
     else {
         Com comNE = computeNodeCOM(node->ne);
@@ -141,24 +140,21 @@ Com computeNodeCOM(Node* node) {
             return com;
         }
         com.position.x = (comNE.position.x * comNE.mass + comNW.position.x * comNW.mass + comSE.position.x * comSE.mass + comSW.position.x * comSW.mass) / com.mass;
-        com.position.y = (comNE.position.y * comNE.mass + comNW.position.y * comNW.mass + comSE.position.y * comSE.mass + comSW.position.y * comSW.mass) / com.mass;
-        printf("pos x: %lf y: %lf mass: %lf\n", com.position.x, com.position.y, com.mass);
+        com.position.y = (comNE.position.y * comNE.mass + comNW.position.y * comNW.mass + comSE.position.y * comSE.mass + comSW.position.y * comSW.mass) / com.mass; 
     }
     node->com = com;
     return com;
 }
 
-long double distance(Data* p1, Data* p2)
+double distance(Data* p1, Data* p2)
 {
-    printf("distance obj pos x1: %le, y1: %le, x2: %le, y2: %le\n", p1->position.x,p1->position.y,p2->position.x,p2->position.y);
-    long double r = pow(p1->position.x - p2->position.x, 2) + pow(p1->position.y - p2->position.y, 2);//r^2
+    double r = pow(p1->position.x - p2->position.x, 2) + pow(p1->position.y - p2->position.y, 2);//r^2
     return r;
 }
 
-long double distanceNode(Data* p1, Node* p2)
+double distanceNode(Data* p1, Node* p2)
 {
-    printf("distance node pos x1: %le, y1: %le, x2: %le, y2: %le\n", p1->position.x,p1->position.y,p2->position.x,p2->position.y);
-    long double r = pow(p1->position.x - p2->com.position.x, 2) + pow(p1->position.y - p2->com.position.y, 2);//r^2
+    double r = pow(p1->position.x - p2->com.position.x, 2) + pow(p1->position.y - p2->com.position.y, 2);//r^2
     return r;
 }
 
@@ -174,43 +170,42 @@ Vector2D calculateForce(Tree* tree, Data* data) {
 
 Vector2D forceObjects(Data* data, Data* data2) {
     Vector2D f;
-    long double r = distance(data, data2);
+    double r = distance(data, data2);
     double value = G * data->mass * data2->mass / r;
-    f.x = value * (data->position.x - data2->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
-    f.y = value * (data->position.y - data2->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
-    printf("obj r: %lf, x: %lf, y: %lf\n", r, f.x,f.y);
+    f.x = value * (data2->position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
+    f.y = value * (data2->position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
     return f;
 }
 
 Vector2D forceNode(Data* data, Node* data2) {
     Vector2D f;
-    long double r = distanceNode(data, data2);
+    double r = distanceNode(data, data2);
     double value = G * data->mass * data2->com.mass / r;
-    f.x = value * (data->position.x - data2->com.position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
-    f.y = value * (data->position.y - data2->com.position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
-    printf("node r: %lf, x: %lf, y: %lf\n", r, f.x,f.y);
+    f.x = value * (data2->com.position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
+    f.y = value * (data2->com.position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
     return f;
 }
 
 Vector2D calculateForceNode(Data* data, Node* node) {
-    long double dist = 0.0;
-    long double D = node->dim;
-    long double theta = 1.0;
+    double dist = 0.0;
+    double D = node->dim;
+    double theta = 0.01;
     Vector2D ret;
     ret.x = 0;
     ret.y = 0;
-    if(node->size == 0 || &data == &(node->obj))
+    if(node->size == 0 || (node->obj != NULL && data->position.x == node->obj->position.x && data->position.y == node->obj->position.y))
     {
         return ret;
     }
 
     else if(node->size == 1)
     {
-	    return forceObjects(data,node->obj);
+        Vector2D ff = forceObjects(data,node->obj);
+	    return ff;
     }
     else
     {
-        dist = distanceNode(data, node);
+        dist = sqrt(distanceNode(data, node));
         if(D/dist < theta)
         {
             return forceNode(data, node);
@@ -221,22 +216,17 @@ Vector2D calculateForceNode(Data* data, Node* node) {
             vec.x = 0;
             vec.y = 0;
             vec = calculateForceNode(data, node->ne);
-            printf("vec x: %lf y: %lf\n", vec.x, vec.y);
             ret.x += vec.x;
             ret.y += vec.y;
             vec = calculateForceNode(data, node->nw);
-            printf("vec x: %lf y: %lf\n", vec.x, vec.y);
             ret.x += vec.x;
             ret.y += vec.y;
             vec = calculateForceNode(data, node->se);
-            printf("vec x: %lf y: %lf\n", vec.x, vec.y);
             ret.x += vec.x;
             ret.y += vec.y;
             vec = calculateForceNode(data, node->sw);
-            printf("vec x: %lf y: %lf\n", vec.x, vec.y);
             ret.x += vec.x;
             ret.y += vec.y;
-            printf("vec x: %lf y: %lf\n", vec.x, vec.y);
             return ret;
         }
     }

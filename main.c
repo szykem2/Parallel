@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include "tree.h"
 #include "mpi.h"
 #include "mpe.h"
@@ -11,7 +12,6 @@
 
 #define MASTER 0
 #define dt 0.001;
-#define MAX_IN_QUAD 10
 
 Data* particlesData;
 size_t numOfParticles;
@@ -26,19 +26,23 @@ void printHelp() {
 
 void calculate(unsigned int position) {
     Vector2D force;
+    force.x = 0;
+    force.y = 0;
     for(int i = 0; i < numOfParticles; i++) {
         if(i == position) 
             continue;
         
         Vector2D f;
+        f.x = 0;
+        f.y = 0;
         double r = pow(particlesData[i].position.x - particlesData[position].position.x, 2) + pow(particlesData[i].position.y - particlesData[position].position.y, 2);//r^2
-        double value = G * particlesData[i].mass * particlesData[position].mass / r / 100; //F=G*M*m/r^2
+        double value = G * particlesData[i].mass * particlesData[position].mass / r; //F=G*M*m/r^2
         f.x = value * (particlesData[i].position.x - particlesData[position].position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
         f.y = value * (particlesData[i].position.y - particlesData[position].position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
         force.x += f.x;
         force.y += f.y;
     }
-    printf("Force iterative: %lf, %lf\n", force.x, force.y);
+    //printf("Force iterative: %lf, %lf\n", force.x, force.y);
     /*particlesData[position].position.x += particlesData[position].velocity.x * dt; //ds=v*dt
     particlesData[position].position.y += particlesData[position].velocity.y * dt;
     particlesData[position].velocity.x += force.x / particlesData[position].mass * dt ; //a=F/m dv=a*dt
@@ -60,20 +64,28 @@ int main(int argc, char**argv) {
     }
 
     parse(fname);
-
-    Tree* tree = NULL;
-    createTree(&tree);
-    buildTree(tree, particlesData, 3);
-    computeCOM(tree);
-    for(int i = 0; i < numOfParticles; i++) {
-        Vector2D forces = calculateForce(tree, &particlesData[i]);
-        printf("Forces tree: %lf, %lf\n", forces.x, forces.y);
-    }
-
+    clock_t start = clock();
     for(int i = 0; i < numOfParticles; i++) {
         calculate(i);
     }
+    clock_t end = clock();
+    double elapsed_time = (end - start)/(double)CLOCKS_PER_SEC;
+    printf("Elapsed time iterative: %.2f.\n", elapsed_time);
 
+    start = clock();
+    Tree* tree = NULL;
+    createTree(&tree);
+    buildTree(tree, particlesData, numOfParticles);
+    computeCOM(tree);
+    
+    for(int i = 0; i < numOfParticles; i++) {
+        
+        Vector2D forces = calculateForce(tree, &particlesData[i]);
+        //printf("Forces tree: %lf, %lf\n", forces.x, forces.y);
+    }
+    end = clock();
+    elapsed_time = (end - start)/(double)CLOCKS_PER_SEC;
+    printf("Elapsed time tree: %.2f.\n", elapsed_time);
     //TODO: divide the data somehow, send it and visualize
 
     
