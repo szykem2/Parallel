@@ -10,6 +10,7 @@
 #include "mpe.h"
 #include "mpe_graphics.h"
 #include <omp.h>
+#include "drawer.h"
 
 #define MASTER 0
 #define dt 0.001;
