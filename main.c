@@ -11,6 +11,8 @@
 #include "mpe_graphics.h"
 #include <omp.h>
 #include <stddef.h>
+#include "drawer.h"
+
 
 #define MASTER 0
 #define dt 0.001;
@@ -79,6 +81,7 @@ int main(int argc, char**argv) {
     if(myid == MASTER) {
         printf("N-body problem simulation.\n");
     }
+    openDrawer(MPI_COMM_WORLD);
 
     createType();
     if(myid == MASTER) {
@@ -119,6 +122,8 @@ int main(int argc, char**argv) {
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
             l++;
         }
+        drawBuffered(sendBuffer, sizes[myid]);
+        draw();
         MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
         clearTree(tree);
     }
@@ -128,6 +133,7 @@ int main(int argc, char**argv) {
     free (fname);
     free(particlesData);
     deleteTree(tree);
+    closeDrawer();
     MPI_Type_free(&Particle);
     MPI_Finalize();
     return 0;
