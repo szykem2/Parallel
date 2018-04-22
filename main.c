@@ -10,7 +10,7 @@
 #include "mpe.h"
 #include "mpe_graphics.h"
 #include <omp.h>
-`
+
 #define MASTER 0
 #define dt 0.001;
 
@@ -65,28 +65,35 @@ int main(int argc, char**argv) {
     }
 
     parse(fname);
-    clock_t start = clock();
+    clock_t start = (unsigned long)time(NULL);
     for(int i = 0; i < numOfParticles; i++) {
         calculate(i);
     }
-    clock_t end = clock();
-    double elapsed_time = (end - start)/(double)CLOCKS_PER_SEC;
+    unsigned long end = (unsigned long)time(NULL);
+    double elapsed_time = (end - start);
     printf("Elapsed time iterative: %.2f.\n", elapsed_time);
 
     Tree* tree = NULL;
     createTree(&tree);
     buildTree(tree, particlesData, numOfParticles);
     computeCOM(tree);
-    start = clock();    
-    #pragma omp parallel
+    start = (unsigned long)time(NULL);    
+    //#pragma omp parallel
     for(int i = 0; i < numOfParticles; i++) {
-        
         Vector2D forces = calculateForce(tree, &particlesData[i]);
         //printf("Forces tree: %lf, %lf\n", forces.x, forces.y);
     }
-    end = clock();
-    elapsed_time = (end - start)/(double)CLOCKS_PER_SEC;
+    end = (unsigned long)time(NULL);
+    elapsed_time = (end - start);
     printf("Elapsed time tree: %.2f.\n", elapsed_time);
+    
+
+    /*for(int i = 0; i < numOfParticles; i++) {
+        calculate(i);
+        Vector2D forces = calculateForce(tree, &particlesData[i]);
+        printf("Forces tree: %lf, %lf\n", forces.x, forces.y);
+    }*/
+    
     //TODO: divide the data somehow, send it and visualize
 
     

@@ -189,7 +189,7 @@ Vector2D forceNode(Data* data, Node* data2) {
 Vector2D calculateForceNode(Data* data, Node* node) {
     double dist = 0.0;
     double D = node->dim;
-    double theta = 0.01;
+    double theta = 0.1;
     Vector2D ret;
     ret.x = 0;
     ret.y = 0;
