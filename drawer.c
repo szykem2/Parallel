@@ -19,6 +19,7 @@ void drawBuffered(Data* objects, size_t size) {
         y = objects[i].position.y*CENTER + CENTER;
         s = 1;//objects[i].mass / MASS;
         MPE_Fill_circle(graph, x, y, s, BODY_COLOR);
+        //printf("%d: %lf, %lf v: %lf, %lf\n", i, objects[i].position.x, objects[i].position.y, objects[i].velocity.x, objects[i].velocity.y);
     }
 }
 

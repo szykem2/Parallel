@@ -25,7 +25,7 @@ clean:
 run:
 	#sourcempi
 	#/opt/nfs/config/station_name_list.sh 101 116 > nodes
-	mpiexec -f nodes -n 7 ./$(PROJ) -df dataFile
+	mpiexec -f nodes -n 1 ./$(PROJ) -df dataFile
 	#display :
 	# mpiexec -f nodes -n $(( 2 * $(cat nodes | wc -l) + 1 )) -env DISPLAY $( hostname | sed -e 's/206-0/1/' ):1 ./nbody -df dataFile
 	# 

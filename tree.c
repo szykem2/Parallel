@@ -1,5 +1,8 @@
 #include "tree.h"
 #include <math.h>
+#define MAX_DEPTH 500
+unsigned depth = 0;
+unsigned aPos = 0;
 
 void insertIntoQuad(Node* root, Data* obj) {
     if (obj->position.x > root->position.x) {
@@ -26,6 +29,7 @@ void insertObject(Node* root, Data* obj) {
         obj->velocity.y = 0;
         return;
     }
+    depth++;
     root->size = root->size+1;
     if (root->size == 1) {
         root->obj = obj;
@@ -36,13 +40,11 @@ void insertObject(Node* root, Data* obj) {
         createNode(&(root->nw), offset, root->position.x - offset, root->position.y + offset);
         createNode(&(root->se), offset, root->position.x + offset, root->position.y - offset);
         createNode(&(root->sw), offset, root->position.x - offset, root->position.y - offset);
-        
         if(root->size == 2) {
-            if(fabs(root->obj->position.x - obj->position.x) < 0.01 && fabs(root->obj->position.y - obj->position.y) < 0.01) {
-                root->obj->position.x += 0.005;
-                root->obj->position.y += 0.005;
-                obj->position.x -= 0.005;
-                obj->position.y -= 0.005;
+            if(depth == MAX_DEPTH || (fabs(root->obj->position.x - obj->position.x) < 0.01 && fabs(root->obj->position.y - obj->position.y) < 0.01)) {
+                obj->mass += root->obj->mass;
+                root->obj = obj;
+                return;
             }
             insertIntoQuad(root, root->obj);
             root->obj = NULL;
@@ -53,11 +55,13 @@ void insertObject(Node* root, Data* obj) {
 }
 
 void insert(Tree* tree, Data* obj) {
+    depth = 0;
     insertObject(tree->head, obj);
 }
 
 void buildTree(Tree* tree, Data* objects, size_t num) {
     for(int i = 0; i < num; i++) {
+        aPos = i;
         insert(tree, &objects[i]);
     }
 }
@@ -167,6 +171,7 @@ double distance(Data* p1, Data* p2)
 double distanceNode(Data* p1, Node* p2)
 {
     double r = pow(p1->position.x - p2->com.position.x, 2) + pow(p1->position.y - p2->com.position.y, 2);//r^2
+    printf("node distance: %lf, point: %lf, %lf com: %lf, %lf\n", r, p1->position.x, p1->position.y, p2->com.position.x, p2->com.position.y);
     return r;
 }
 
@@ -188,6 +193,7 @@ Vector2D forceObjects(Data* data, Data* data2) {
     if(fabs(r) < 0.01) {
         return f;
     }
+    //printf("fffobj: %lf, %lf, %lf\n", data->mass, data2->mass, r);
     double value = G * data->mass * data2->mass / r;
     f.x = value * (data2->position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
     f.y = value * (data2->position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
@@ -202,6 +208,7 @@ Vector2D forceNode(Data* data, Node* data2) {
     if(fabs(r) < 0.01) {
         return f;
     }
+    //printf("fffnode: %lf, %lf, %lf\n", data->mass, data2->com.mass, r);
     double value = G * data->mass * data2->com.mass / r;
     f.x = value * (data2->com.position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
     f.y = value * (data2->com.position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
