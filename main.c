@@ -15,7 +15,7 @@
 
 
 #define MASTER 0
-#define dt 0.01;
+#define dt 0.001;
 
 Data* particlesData;
 size_t numOfParticles;
@@ -42,7 +42,7 @@ void createType() {
     MPI_Type_commit(&Particle);
 }
 
-/*void calculate(unsigned int position) {
+Vector2D calculate(unsigned int position) {
     Vector2D force;
     force.x = 0;
     force.y = 0;
@@ -54,18 +54,22 @@ void createType() {
         f.x = 0;
         f.y = 0;
         double r = pow(particlesData[i].position.x - particlesData[position].position.x, 2) + pow(particlesData[i].position.y - particlesData[position].position.y, 2);//r^2
+        if(fabs(r) < 0.001) {
+	    return f;
+        }
         double value = G * particlesData[i].mass * particlesData[position].mass / r; //F=G*M*m/r^2
         f.x = value * (particlesData[i].position.x - particlesData[position].position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
         f.y = value * (particlesData[i].position.y - particlesData[position].position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
         force.x += f.x;
         force.y += f.y;
     }
+    return force;
     //printf("Force iterative: %lf, %lf\n", force.x, force.y);
-    particlesData[position].position.x += particlesData[position].velocity.x * dt; //ds=v*dt
+    /*particlesData[position].position.x += particlesData[position].velocity.x * dt; //ds=v*dt
     particlesData[position].position.y += particlesData[position].velocity.y * dt;
     particlesData[position].velocity.x += force.x / particlesData[position].mass * dt ; //a=F/m dv=a*dt
-    particlesData[position].velocity.y += force.y/ particlesData[position].mass * dt ;
-}*/
+    particlesData[position].velocity.y += force.y/ particlesData[position].mass * dt ;*/
+}
 
 int main(int argc, char**argv) {
     char* fname = (char*)malloc(sizeof(char) * 20); 
@@ -103,18 +107,18 @@ int main(int argc, char**argv) {
         disp[i] = disp[i-1] + sizes[i-1];
 
     MPI_Bcast(particlesData,numOfParticles,Particle,0,MPI_COMM_WORLD);
-    Tree* tree = NULL;
-    createTree(&tree);
+    /*Tree* tree = NULL;
+    createTree(&tree);*/
     const double tm = 100;
     double t = 9;
     while(t < tm) {
         t += dt;
-        buildTree(tree, particlesData, numOfParticles);
-        computeCOM(tree);
+        //buildTree(tree, particlesData, numOfParticles);
+        //computeCOM(tree);
         int l = 0;
         for(int i = disp[myid]; i < disp[myid] + sizes[myid]; i++) {
             memcpy(&sendBuffer[l],&particlesData[i],sizeof(Data));
-            Vector2D force = calculateForce(tree, &particlesData[i]);
+            Vector2D force = calculate(i);
 
             sendBuffer[l].position.x += sendBuffer[l].velocity.x * dt; //ds=v*dt
             sendBuffer[l].position.y += sendBuffer[l].velocity.y * dt;
@@ -124,18 +128,15 @@ int main(int argc, char**argv) {
         }
         if (myid == MASTER)
             clean();
-        drawBuffered(sendBuffer, sizes[myid]);
-        if (myid == MASTER)
-            draw();
-        MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
-        clearTree(tree);
+        drawBuffered(particlesData + disp[myid], sizes[myid]);
+        MPI_Allgatherv(sendBuffer, sizes[myid],Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
     }
     free(sizes);
     free(disp);
     free(sendBuffer);
     free (fname);
     free(particlesData);
-    deleteTree(tree);
+    //deleteTree(tree);
     closeDrawer();
     MPI_Type_free(&Particle);
     MPI_Finalize();
