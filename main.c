@@ -111,6 +111,9 @@ int main(int argc, char**argv) {
         t += dt;
         /*buildTree(tree, particlesData, numOfParticles);
         computeCOM(tree);*/
+        createTree(&tree);
+        buildTree(tree, particlesData, numOfParticles);
+        computeCOM(tree);
         int l = 0;
         for(int i = disp[myid]; i < disp[myid] + sizes[myid]; i++) {
             calculate(i);
@@ -123,17 +126,18 @@ int main(int argc, char**argv) {
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
             l++;*/
         }
-        drawBuffered(particlesData + disp[myid], sizes[myid]);
+        if(myid == MASTER)
+            clean();
+        drawBuffered(sendBuffer, size);
         draw();
         MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
-        clearTree(tree);
+        deleteTree(tree);
     }
     free(sizes);
     free(disp);
     free(sendBuffer);
     free (fname);
     free(particlesData);
-    deleteTree(tree);
     closeDrawer();
     MPI_Type_free(&Particle);
     MPI_Finalize();
