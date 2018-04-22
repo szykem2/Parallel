@@ -106,9 +106,10 @@ int main(int argc, char**argv) {
     Tree* tree = NULL;
     createTree(&tree);
     const double tm = 100;
-    double t = 99.99;
+    double t = 99;
     while(t < tm) {
         t += dt;
+        createTree(&tree);
         buildTree(tree, particlesData, numOfParticles);
         computeCOM(tree);
         int l = 0;
@@ -122,17 +123,18 @@ int main(int argc, char**argv) {
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
             l++;
         }
-        drawBuffered(sendBuffer, sizes[myid]);
+	if(myid == MASTER)
+	    clean();
+        drawBuffered(sendBuffer, size);
         draw();
         MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
-        clearTree(tree);
+        deleteTree(tree);
     }
     free(sizes);
     free(disp);
     free(sendBuffer);
     free (fname);
     free(particlesData);
-    deleteTree(tree);
     closeDrawer();
     MPI_Type_free(&Particle);
     MPI_Finalize();
