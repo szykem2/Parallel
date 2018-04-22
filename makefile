@@ -3,7 +3,7 @@ SRCS=$(wildcard *.c)
 HDRS=$(wildcard *.h)
 OBJS=$(SRCS:.c=.o)
 PROJ=nbody
-CFLAGS= -std=c11 -c -g -Wall -fopenmp -O3 -I/opt/nfs/mpe2-2.4.9b/include -L/opt/nfs/mpe2-2.4.9b/lib 
+CFLAGS= -std=c11 -c -g -Wall -fopenmp -I/opt/nfs/mpe2-2.4.9b/include -L/opt/nfs/mpe2-2.4.9b/lib 
 LIBS= -lm -pthread -lmpe -lX11 -lm -lmpi -fopenmp
 
 all:$(PROJ)

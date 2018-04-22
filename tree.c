@@ -21,6 +21,11 @@ void insertIntoQuad(Node* root, Data* obj) {
 }
 
 void insertObject(Node* root, Data* obj) {
+    if(obj->position.x >= 1 || obj->position.x <= -1 || obj->position.y >=1 || obj->position.y <= -1) {
+        obj->velocity.x = 0;
+        obj->velocity.y = 0;
+        return;
+    }
     root->size = root->size+1;
     if (root->size == 1) {
         root->obj = obj;
@@ -31,11 +36,18 @@ void insertObject(Node* root, Data* obj) {
         createNode(&(root->nw), offset, root->position.x - offset, root->position.y + offset);
         createNode(&(root->se), offset, root->position.x + offset, root->position.y - offset);
         createNode(&(root->sw), offset, root->position.x - offset, root->position.y - offset);
-        insertIntoQuad(root, obj);
+        
         if(root->size == 2) {
+            if(fabs(root->obj->position.x - obj->position.x) < 0.01 && fabs(root->obj->position.y - obj->position.y) < 0.01) {
+                root->obj->position.x += 0.005;
+                root->obj->position.y += 0.005;
+                obj->position.x -= 0.005;
+                obj->position.y -= 0.005;
+            }
             insertIntoQuad(root, root->obj);
             root->obj = NULL;
         }
+        insertIntoQuad(root, obj);
     }
     root->isCleared = false;
 }
@@ -170,7 +182,12 @@ Vector2D calculateForce(Tree* tree, Data* data) {
 
 Vector2D forceObjects(Data* data, Data* data2) {
     Vector2D f;
+    f.x = 0;
+    f.y = 0;
     double r = distance(data, data2);
+    if(fabs(r) < 0.01) {
+        return f;
+    }
     double value = G * data->mass * data2->mass / r;
     f.x = value * (data2->position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
     f.y = value * (data2->position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
@@ -179,7 +196,12 @@ Vector2D forceObjects(Data* data, Data* data2) {
 
 Vector2D forceNode(Data* data, Node* data2) {
     Vector2D f;
+    f.x = 0;
+    f.y = 0;
     double r = distanceNode(data, data2);
+    if(fabs(r) < 0.01) {
+        return f;
+    }
     double value = G * data->mass * data2->com.mass / r;
     f.x = value * (data2->com.position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
     f.y = value * (data2->com.position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
@@ -193,7 +215,7 @@ Vector2D calculateForceNode(Data* data, Node* node) {
     Vector2D ret;
     ret.x = 0;
     ret.y = 0;
-    if(node->size == 0 || (node->obj != NULL && data->position.x == node->obj->position.x && data->position.y == node->obj->position.y))
+    if(node->size == 0 || (node->obj != NULL && fabs(data->position.x - node->obj->position.x) < 0.01 && fabs(data->position.y - node->obj->position.y) < 0.01) || node->isCleared)
     {
         return ret;
     }

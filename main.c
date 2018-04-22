@@ -42,7 +42,7 @@ void createType() {
     MPI_Type_commit(&Particle);
 }
 
-/*void calculate(unsigned int position) {
+void calculate(unsigned int position) {
     Vector2D force;
     force.x = 0;
     force.y = 0;
@@ -65,7 +65,7 @@ void createType() {
     particlesData[position].position.y += particlesData[position].velocity.y * dt;
     particlesData[position].velocity.x += force.x / particlesData[position].mass * dt ; //a=F/m dv=a*dt
     particlesData[position].velocity.y += force.y/ particlesData[position].mass * dt ;
-}*/
+}
 
 int main(int argc, char**argv) {
     char* fname = (char*)malloc(sizeof(char) * 20); 
@@ -106,23 +106,24 @@ int main(int argc, char**argv) {
     Tree* tree = NULL;
     createTree(&tree);
     const double tm = 100;
-    double t = 99.99;
+    double t = 99;
     while(t < tm) {
         t += dt;
-        buildTree(tree, particlesData, numOfParticles);
-        computeCOM(tree);
+        /*buildTree(tree, particlesData, numOfParticles);
+        computeCOM(tree);*/
         int l = 0;
         for(int i = disp[myid]; i < disp[myid] + sizes[myid]; i++) {
-            memcpy(&sendBuffer[l],&particlesData[i],sizeof(Data));
+            calculate(i);
+            /*memcpy(&sendBuffer[l],&particlesData[i],sizeof(Data));
             Vector2D force = calculateForce(tree, &particlesData[i]);
 
             sendBuffer[l].position.x += sendBuffer[l].velocity.x * dt; //ds=v*dt
             sendBuffer[l].position.y += sendBuffer[l].velocity.y * dt;
             sendBuffer[l].velocity.x += force.x / sendBuffer[l].mass * dt; //a=F/m  dv=a*dt
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
-            l++;
+            l++;*/
         }
-        drawBuffered(sendBuffer, sizes[myid]);
+        drawBuffered(particlesData + disp[myid], sizes[myid]);
         draw();
         MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
         clearTree(tree);
