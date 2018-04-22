@@ -15,7 +15,7 @@
 
 
 #define MASTER 0
-#define dt 0.001;
+#define dt 0.01;
 
 Data* particlesData;
 size_t numOfParticles;
@@ -106,7 +106,7 @@ int main(int argc, char**argv) {
     Tree* tree = NULL;
     createTree(&tree);
     const double tm = 100;
-    double t = 99.99;
+    double t = 9;
     while(t < tm) {
         t += dt;
         buildTree(tree, particlesData, numOfParticles);
@@ -122,8 +122,11 @@ int main(int argc, char**argv) {
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
             l++;
         }
+        if (myid == MASTER)
+            clean();
         drawBuffered(sendBuffer, sizes[myid]);
-        draw();
+        if (myid == MASTER)
+            draw();
         MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
         clearTree(tree);
     }

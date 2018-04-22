@@ -21,6 +21,14 @@ void insertIntoQuad(Node* root, Data* obj) {
 }
 
 void insertObject(Node* root, Data* obj) {
+    if (obj->position.x >= 1. || obj->position.x <= -1. || obj->position.y >= 1. || obj->position.y <= -1.)
+    {
+        obj->mass = 0.0;
+        obj->velocity.x = 0.0;
+        obj->velocity.y = 0.0;
+        return;
+    }
+
     root->size = root->size+1;
     if (root->size == 1) {
         root->obj = obj;

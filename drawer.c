@@ -18,7 +18,7 @@ void drawBuffered(Data* objects, size_t size) {
         x = objects[i].position.x*CENTER + CENTER;
         y = objects[i].position.y*CENTER + CENTER;
         s = objects[i].mass / MASS;
-        MPE_Fill_circle(graph, x, y, s, BODY_COLOR);
+        MPE_Fill_circle(graph, x, y, 1, BODY_COLOR);
     }
 }
 
