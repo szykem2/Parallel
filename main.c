@@ -109,7 +109,7 @@ int main(int argc, char**argv) {
         masses[i] = particlesData[i].mass;
     Tree* tree = NULL;
     createTree(&tree);
-    const double tm = 50;
+    const double tm = 10000;
     double t = 0;
     while(t < tm) {
         t += dt;
@@ -127,12 +127,15 @@ int main(int argc, char**argv) {
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
             l++;
         }
-        if(myid == MASTER)
-            clean();
-        drawBuffered(sendBuffer, size);
-        draw();
+
         MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
         clearTree(tree);
+
+        if(myid == MASTER)
+            clean();
+
+        MPI_Barrier(MPI_COMM_WORLD);
+        draw(sendBuffer, size);
     }
     free(sizes);
     free(disp);
