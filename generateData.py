@@ -7,8 +7,8 @@ Ypos = []
 Xspeed = []
 Yspeed = []
 mass = []
-num = 30
-v = 0.1
+num = 500
+v = 0.8
 
 
 for i in range(0, num):

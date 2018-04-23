@@ -96,9 +96,6 @@ int main(int argc, char**argv) {
     int* disp = (int*)malloc(sizeof(int) * nodeCount);
     int size = numOfParticles/nodeCount + (numOfParticles % nodeCount <= myid ? 0 :1);
     Data* sendBuffer = (Data*)malloc(sizeof(Data) * size);
-    masses = (double*)malloc(sizeof(double) * numOfParticles);
-    for(int i = 0; i < numOfParticles; i++) 
-        masses[i] = particlesData[i].mass;
 
     MPI_Gather(&size,1,MPI_INT,sizes,1,MPI_INT,0,MPI_COMM_WORLD);
     MPI_Bcast(sizes,nodeCount,MPI_INT,0,MPI_COMM_WORLD);
@@ -107,9 +104,12 @@ int main(int argc, char**argv) {
         disp[i] = disp[i-1] + sizes[i-1];
 
     MPI_Bcast(particlesData,numOfParticles,Particle,0,MPI_COMM_WORLD);
+    masses = (double*)malloc(sizeof(double) * numOfParticles);
+    for(int i = 0; i < numOfParticles; i++) 
+        masses[i] = particlesData[i].mass;
     Tree* tree = NULL;
     createTree(&tree);
-    const double tm = 100;
+    const double tm = 50;
     double t = 0;
     while(t < tm) {
         t += dt;
@@ -117,15 +117,12 @@ int main(int argc, char**argv) {
         computeCOM(tree);
         int l = 0;
         for(int i = disp[myid]; i < disp[myid] + sizes[myid]; i++) {
-            //calculate(i);
             memcpy(&sendBuffer[l],&particlesData[i],sizeof(Data));
             Vector2D force = calculateForce(tree, &particlesData[i]);
 
-            printf("%d: f: %lf, %lf v: %lf, %lf\n", i, force.x, force.y, sendBuffer[l].velocity.x, sendBuffer[l].velocity.y);
             sendBuffer[l].position.x += sendBuffer[l].velocity.x * dt; //ds=v*dt
             sendBuffer[l].position.y += sendBuffer[l].velocity.y * dt;
             sendBuffer[l].mass = masses[i];
-            printf("mass: %lf\n", sendBuffer[l].mass);
             sendBuffer[l].velocity.x += force.x / sendBuffer[l].mass * dt; //a=F/m  dv=a*dt
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
             l++;
@@ -136,7 +133,6 @@ int main(int argc, char**argv) {
         draw();
         MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
         clearTree(tree);
-        //deleteTree(tree);
     }
     free(sizes);
     free(disp);

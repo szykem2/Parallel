@@ -171,7 +171,6 @@ double distance(Data* p1, Data* p2)
 double distanceNode(Data* p1, Node* p2)
 {
     double r = pow(p1->position.x - p2->com.position.x, 2) + pow(p1->position.y - p2->com.position.y, 2);//r^2
-    printf("node distance: %lf, point: %lf, %lf com: %lf, %lf\n", r, p1->position.x, p1->position.y, p2->com.position.x, p2->com.position.y);
     return r;
 }
 
@@ -193,7 +192,6 @@ Vector2D forceObjects(Data* data, Data* data2) {
     if(fabs(r) < 0.01) {
         return f;
     }
-    //printf("fffobj: %lf, %lf, %lf\n", data->mass, data2->mass, r);
     double value = G * data->mass * data2->mass / r;
     f.x = value * (data2->position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
     f.y = value * (data2->position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
@@ -208,7 +206,6 @@ Vector2D forceNode(Data* data, Node* data2) {
     if(fabs(r) < 0.01) {
         return f;
     }
-    //printf("fffnode: %lf, %lf, %lf\n", data->mass, data2->com.mass, r);
     double value = G * data->mass * data2->com.mass / r;
     f.x = value * (data2->com.position.x - data->position.x) / sqrt(r); //Fx = F*cos(phi)=F*x/r
     f.y = value * (data2->com.position.y - data->position.y) / sqrt(r); //Fy = F*sin(phi)=F*y/r
