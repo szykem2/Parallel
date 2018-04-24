@@ -7,11 +7,11 @@ Ypos = []
 Xspeed = []
 Yspeed = []
 mass = []
-num = 500
-v = 0.8
+num = 1000
+v = 0.5
 
 
-for i in range(0, num):
+for i in range(0, num+1):
 	val = random.uniform(-v,v)
 	while (val in Xpos):
 		val = random.uniform(-v,v)
@@ -21,20 +21,20 @@ for i in range(0, num):
 	while (val in Ypos):
 		val = random.uniform(-v,v)
 	Ypos.append(val)
-	val = random.uniform(-v,v)
+	val = random.uniform(-v/5.0,v/5.0)
 	
 	while (val in Xspeed):
-		val = random.uniform(-v,v)
-	Xspeed.append(0)
-	val = random.uniform(-v,v)
+		val = random.uniform(-v/5.0,v/5.0)
+	Xspeed.append(val)
+	val = random.uniform(-v/5.0,v/5.0)
 	
 	while (val in Yspeed):
-		val = random.uniform(-v,v)
-	Yspeed.append(0)
+		val = random.uniform(-v/5.0,v/5.0)
+	Yspeed.append(val)
 	val = random.uniform(0,1)
 	
 	while (val in mass):
-		val = random.uniform(0,1)
+		val = random.uniform(0,100)
 	mass.append(val)
 	
 with open("dataFile", "w") as f:

@@ -21,7 +21,6 @@ int getLines(const char* fname)
         exit(EXIT_FAILURE);
     }
 
-    lines++;
     while(!feof(fp))
     {
         ch = fgetc(fp);

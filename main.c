@@ -12,10 +12,10 @@
 #include <omp.h>
 #include <stddef.h>
 #include "drawer.h"
-
+#include <unistd.h>
 
 #define MASTER 0
-#define dt 0.01;
+#define dt 0.001;
 
 Data* particlesData;
 size_t numOfParticles;
@@ -109,7 +109,7 @@ int main(int argc, char**argv) {
         masses[i] = particlesData[i].mass;
     Tree* tree = NULL;
     createTree(&tree);
-    const double tm = 10000;
+    const double tm = 100;
     double t = 0;
     while(t < tm) {
         t += dt;
@@ -125,12 +125,11 @@ int main(int argc, char**argv) {
             sendBuffer[l].mass = masses[i];
             sendBuffer[l].velocity.x += force.x / sendBuffer[l].mass * dt; //a=F/m  dv=a*dt
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
+            //printf("%d v: %lf, %lf\n", l, sendBuffer[l].velocity.x, sendBuffer[l].velocity.y);
             l++;
         }
-
-        MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
+	MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
         clearTree(tree);
-
         if(myid == MASTER)
             clean();
 

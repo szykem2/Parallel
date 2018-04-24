@@ -36,6 +36,9 @@ void insertObject(Node* root, Data* obj) {
     }
     else {
         double offset = root->dim / 2;
+	if(fabs(offset) < 0.0001){
+		return;
+	}
         createNode(&(root->ne), offset, root->position.x + offset, root->position.y + offset); 
         createNode(&(root->nw), offset, root->position.x - offset, root->position.y + offset);
         createNode(&(root->se), offset, root->position.x + offset, root->position.y - offset);
