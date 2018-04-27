@@ -77,8 +77,9 @@ int main(int argc, char**argv) {
 
     int myid, nodeCount;
     MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
     MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-    MPI_Comm_size(MPI_COMM_WORLD, &nodeCount);
+    
     if(myid == MASTER) {
         printf("N-body problem simulation.\n");
     }
@@ -109,7 +110,7 @@ int main(int argc, char**argv) {
         masses[i] = particlesData[i].mass;
     Tree* tree = NULL;
     createTree(&tree);
-    const double tm = 100;
+    const double tm = 50;
     double t = 0;
     while(t < tm) {
         t += dt;
@@ -125,14 +126,13 @@ int main(int argc, char**argv) {
             sendBuffer[l].mass = masses[i];
             sendBuffer[l].velocity.x += force.x / sendBuffer[l].mass * dt; //a=F/m  dv=a*dt
             sendBuffer[l].velocity.y += force.y / sendBuffer[l].mass * dt;
-            //printf("%d v: %lf, %lf\n", l, sendBuffer[l].velocity.x, sendBuffer[l].velocity.y);
             l++;
         }
-	MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
+	    MPI_Allgatherv(sendBuffer,size,Particle,particlesData,sizes,disp,Particle,MPI_COMM_WORLD);
         clearTree(tree);
         if(myid == MASTER)
             clean();
-
+        usleep(1000);
         MPI_Barrier(MPI_COMM_WORLD);
         draw(sendBuffer, size);
     }

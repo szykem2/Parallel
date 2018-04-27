@@ -6,10 +6,6 @@
 extern Data* particlesData;
 extern size_t numOfParticles;
 
-#ifdef _WIN32
-#define getline(a,b,c) -1 //only for windows where program won't be launched
-#endif
-
 int getLines(const char* fname)
 {                                
     FILE *fp = fopen(fname,"r");
@@ -34,25 +30,22 @@ int getLines(const char* fname)
 }
 
 void parse(const char* fname) {
+    int lines = getLines(fname);
     FILE* f = fopen(fname, "r");
     if(f == NULL) {
         perror(fname);
         exit(EXIT_FAILURE);
     }
 
-    int lines = getLines(fname);
-    numOfParticles = lines;
+    numOfParticles = lines+1;
     printf("Number of particles: %zu\n", numOfParticles);
-    particlesData = (Data*)calloc(lines, sizeof(Data));
+    particlesData = (Data*)calloc(numOfParticles, sizeof(Data));
 
-    char * line = NULL;
-    size_t len = 0;
-    size_t read;
     int i = 0;
-
-    while ((read = getline(&line, &len, f)) != -1) {
+    char str[1000];
+    while (fscanf(f, "%s", str) != EOF) {
         double px, py, vx, vy, m;
-        sscanf(line, "%lf,%lf;%lf,%lf;%lf", &px, &py, &vx, &vy, &m);
+        sscanf(str, "%lf,%lf;%lf,%lf;%lf", &px, &py, &vx, &vy, &m);
         particlesData[i].position.x = px;
         particlesData[i].position.y = py;
         particlesData[i].velocity.x = vx;
@@ -60,5 +53,5 @@ void parse(const char* fname) {
         particlesData[i].mass = m;
         i++;
     }
-    fclose(f);
+    //fclose(f);
 }

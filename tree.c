@@ -216,12 +216,12 @@ Vector2D forceNode(Data* data, Node* data2) {
 }
 
 Vector2D calculateForceNode(Data* data, Node* node) {
-    double dist = 0.0;
-    double D = node->dim;
-    double theta = 0.1;
     Vector2D ret;
     ret.x = 0;
     ret.y = 0;
+    double dist = 0.0;
+    double D = node->dim;
+    double theta = 0.1;
     if(node->size == 0 || (node->obj != NULL && fabs(data->position.x - node->obj->position.x) < 0.01 && fabs(data->position.y - node->obj->position.y) < 0.01) || node->isCleared)
     {
         return ret;
