@@ -7,4 +7,6 @@ nbody
 *.clog2
 *.slog2
 *.pdf
+*.out
+*.png
 nodes

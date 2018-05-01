@@ -8,8 +8,7 @@ Xspeed = []
 Yspeed = []
 mass = []
 num = 1000
-v = 0.5
-
+v = 0.8
 
 for i in range(0, num+1):
 	val = random.uniform(-v,v)
