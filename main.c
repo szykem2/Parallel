@@ -21,7 +21,7 @@ Data* particlesData;
 size_t numOfParticles;
 MPI_Datatype Particle;
 double* masses;
-double tm = 10;
+double tm = 50;
 
 void printHelp() {
     const char* help = "\nN Body simulation\n\n"
@@ -115,6 +115,7 @@ int main(int argc, char**argv) {
         MPI_Barrier(MPI_COMM_WORLD);
         draw(sendBuffer, size);
     }
+    deleteTree(tree);
     free(sizes);
     free(disp);
     free(sendBuffer);

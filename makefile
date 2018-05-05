@@ -25,16 +25,23 @@ clean:
 .PHONY:run
 run:
 	. /opt/nfs/config/source_mpich32.sh
-	/opt/nfs/config/station_name_list.sh 101 116 > nodes
-	mpiexec -f nodes -n 1 ./$(PROJ) -df dataFile
+	#/opt/nfs/config/station_name_list.sh 101 116 > nodes
+	mpiexec -f nodes ./$(PROJ) -df dataFile 
 	#display :
 	# mpiexec -f nodes -n $(( 2 * $(cat nodes | wc -l) + 1 )) -env DISPLAY $( hostname | sed -e 's/206-0/1/' ):1 ./nbody -df dataFile
-	# 
+
+.PHONY:planets
+planets:
+	. /opt/nfs/config/source_mpich32.sh
+	#/opt/nfs/config/station_name_list.sh 101 116 > nodes
+	mpiexec -f nodes ./$(PROJ) -df planets.data -t 100
+	#display :
+	# mpiexec -f nodes -n $(( 2 * $(cat nodes | wc -l) + 1 )) -env DISPLAY $( hostname | sed -e 's/206-0/1/' ):1 ./nbody -df dataFile -t 100
 
 .PHONY:profile
 profile:
 	. /opt/nfs/config/source_mpich32.sh
-	/opt/nfs/config/station_name_list.sh 101 116 > nodes
+	#/opt/nfs/config/station_name_list.sh 101 116 > nodes
 	mpiexec -f nodes -n 4 ./$(PROJ) -df dataFile -t 2
 	/opt/nfs/mpe2-2.4.9b/bin/clog2TOslog2 mpe-profile.clog2
 	/opt/nfs/mpe2-2.4.9b/bin/jumpshot mpe-profile.slog2

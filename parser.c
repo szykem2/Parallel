@@ -25,7 +25,7 @@ int getLines(const char* fname)
             lines++;
         }
     }
-    fclose(fp);
+    //fclose(fp);
     return lines;
 }
 
