@@ -33,7 +33,7 @@ for i in range(0, num+1):
 	val = random.uniform(0,1)
 	
 	while (val in mass):
-		val = random.uniform(0,100)
+		val = random.uniform(0,1)
 	mass.append(val)
 	
 with open("dataFile", "w") as f:
