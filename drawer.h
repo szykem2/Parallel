@@ -8,9 +8,8 @@
 
 
 void openDrawer(MPI_Comm comm);
-void drawBuffered(Data* objects, size_t size);
+void draw(Data* objects, size_t size);
 void clean();
-void draw();
 void closeDrawer();
 
 #endif

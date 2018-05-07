@@ -4,8 +4,7 @@
 #include <stdbool.h>
 
 #include "data.h"
-#define G 0.00001 //6.67*pow(10,-11)
-#define CHUNKSIZE 1
+#define G 0.001 //6.67*pow(10,-11)
 
 typedef struct Com {
     Vector2D position;

@@ -1,15 +1,17 @@
-CC=mpicc
+CC=/opt/nfs/mpich-3.2/bin/mpicc
 SRCS=$(wildcard *.c)
 HDRS=$(wildcard *.h)
 OBJS=$(SRCS:.c=.o)
 PROJ=nbody
-CFLAGS= -std=c11 -c -g -Wall -fopenmp -O3 -I/opt/nfs/mpe2-2.4.9b/include -L/opt/nfs/mpe2-2.4.9b/lib 
-LIBS= -lm -pthread -lmpe -lX11 -lm -lmpi -fopenmp
+CFLAGS= -std=c99 -c -g -Wall -I/opt/nfs/mpe2-2.4.9b/include -pthread
+LDFLAGS= -L/opt/nfs/mpe2-2.4.9b/lib
+LIBS= -lm -pthread -lmpe -lX11 -lm
+DISPLAY = $(shell hostname | sed -e 's/206-0/1/'):1
 
 all:$(PROJ)
 
-profile: CFLAGS += -DMPI_PROFILE
-profile: $(PROJ)
+prof: CFLAGS += -DMPI_PROFILE
+prof: $(PROJ)
 
 $(PROJ): $(OBJS)
 	$(CC) $(LDFLAGS) $(OBJS) -o $(PROJ) $(LIBS)
@@ -19,13 +21,19 @@ $(PROJ): $(OBJS)
 
 .PHONY:clean
 clean:
-	rm -f *.o *~ $(PROJ)
+	rm -f *.o *.slog2 *.clog2 *~ $(PROJ)
 
 .PHONY:run
 run:
-	#sourcempi
-	#/opt/nfs/config/station_name_list.sh 101 116 > nodes
-	mpiexec -f nodes -n 1 ./$(PROJ) -df dataFile
-	#display :
-	# mpiexec -f nodes -n $(( 2 * $(cat nodes | wc -l) + 1 )) -env DISPLAY $( hostname | sed -e 's/206-0/1/' ):1 ./nbody -df dataFile
-	# 
+	/opt/nfs/mpich-3.2/bin/mpiexec -f nodes -env DISPLAY $(DISPLAY) ./$(PROJ) -df dataFile
+
+
+.PHONY:planets
+planets:
+	/opt/nfs/mpich-3.2/bin/mpiexec -f nodes -env DISPLAY $(DISPLAY)  ./$(PROJ) -df planets.data -t 100
+
+.PHONY:profile
+profile:
+	/opt/nfs/mpich-3.2/bin/mpiexec -f nodes ./$(PROJ) -df dataFile -t 10
+	/opt/nfs/mpe2-2.4.9b/bin/clog2TOslog2 mpe-profile.clog2
+	/opt/nfs/mpe2-2.4.9b/bin/jumpshot mpe-profile.slog2
