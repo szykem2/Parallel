@@ -30,10 +30,10 @@ run:
 
 .PHONY:planets
 planets:
-	/opt/nfs/mpich-3.2/bin/mpiexec -f nodes -env DISPLAY $(DISPLAY)  ./$(PROJ) -df planets.data -t 100
+	/opt/nfs/mpich-3.2/bin/mpiexec -n 1 -env DISPLAY $(DISPLAY)  ./$(PROJ) -df planets.data -t 100
 
 .PHONY:profile
 profile:
-	/opt/nfs/mpich-3.2/bin/mpiexec -f nodes ./$(PROJ) -df dataFile -t 10
+	/opt/nfs/mpich-3.2/bin/mpiexec -f nodes ./$(PROJ) -df dataFile -t 5
 	/opt/nfs/mpe2-2.4.9b/bin/clog2TOslog2 mpe-profile.clog2
 	/opt/nfs/mpe2-2.4.9b/bin/jumpshot mpe-profile.slog2

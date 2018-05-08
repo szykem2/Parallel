@@ -6,7 +6,8 @@
 #define END_GATHER 3
 #define START_ALLGATHV 4
 #define END_ALLGATHV 5
-
+#define START_BARRIER 6
+#define END_BARRIER 7
 /*
 Profilowanie uaktywnia się tylko gdy przy kompilacji użyta zostanie flaga -DMPI_PROFILE
 */
@@ -24,6 +25,7 @@ int MPI_Init(int *argc, char ***argv)
 		MPE_Describe_state(START_BCAST, END_BCAST, "broadcast", "red");
 		MPE_Describe_state(START_GATHER, END_GATHER, "gather", "blue");
 		MPE_Describe_state(START_ALLGATHV, END_ALLGATHV, "allgatherv", "green");
+        MPE_Describe_state(START_BARRIER, END_BARRIER, "barrier", "yellow");
 	}
 	
 	MPE_Start_log(); //rozpoczęcie logowania
@@ -69,6 +71,17 @@ int MPI_Allgatherv(const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
 	MPE_Log_event(START_ALLGATHV, myid, "start allgatherv");
 	ret = PMPI_Allgatherv(sendbuf, sendcount, sendtype, recvbuf, recvcounts, displs, recvtype, comm);
    	MPE_Log_event(END_ALLGATHV, myid, "end allgatherv");
+    return ret; 
+}
+
+int MPI_Barrier(MPI_Comm comm) {
+    int ret, myid;
+	MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+
+    //rejestracja wydażenia barrier
+	MPE_Log_event(START_BARRIER, myid, "start barrier");
+	ret = PMPI_Barrier(comm);
+   	MPE_Log_event(END_BARRIER, myid, "end barrier");
     return ret; 
 }
 #endif
